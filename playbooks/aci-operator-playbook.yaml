@@ -1,0 +1,79 @@
+---
+- name: ACI Operator Playbook 
+  connection: local
+  hosts: localhost
+  vars:
+    jsonVar: "{{ lookup('file', '/opt/ansible/aci-containers-config/controller-config') | from_json }}"
+    epgName: '{{ meta.name }}'
+    tenant: "{{ jsonVar['apic-username'] }}"
+    certKey: "{{ jsonVar['apic-private-key-path'] }}"
+    vmProvider: "{{ jsonVar['aci-vmm-type'] | lower }}"
+    ap: 'kubernetes'
+    bd: 'kube-pod-bd'
+    apicHost: "{{ jsonVar['apic-hosts'][0] }}"
+    masterEpg: '{{ epgcontractmaster }}'
+  tasks:
+  - name: create EPG
+    aci_epg:
+      host: '{{ apicHost }}'
+      cert_key: '{{ certKey }}'
+      certificate_name: '{{ tenant }}.crt'
+      username: '{{ tenant }}'
+      tenant: '{{ tenant}}'
+      ap: '{{ ap }}'
+      epg: '{{ epgName }}'
+      description: 'ACI Operator - apiVersion: rmlab.cisco.com/v1alpha1'
+      bd: '{{ bd }}'
+      use_ssl: yes
+      validate_certs: no
+      use_proxy: no
+      state: present
+  - name: Attach Master EPG
+    ignore_errors: yes
+    aci_rest:
+      host: '{{ apicHost }}'
+      cert_key: '{{ certKey }}'
+      certificate_name: '{{ tenant }}.crt'
+      username: '{{ tenant }}'
+      method: post
+      use_ssl: yes
+      validate_certs: no
+      path: /api/node/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ epgName }}.json
+      content:
+         {
+          "fvRsSecInherited": {
+            "attributes": {
+              "tDn": "uni/tn-{{ tenant }}/ap-kubernetes/epg-{{ masterEpg }}",
+              "status": "created"
+            },
+            "children": []
+          }
+         }
+  - name: Bind EPG to VMM Domain
+    aci_epg_to_domain:
+      ap: '{{ ap }}'
+      host: '{{ apicHost }}'
+      cert_key: '{{ certKey }}'
+      certificate_name: '{{ tenant }}.crt'
+      username: '{{ tenant }}'
+      domain: '{{ tenant }}'
+      domain_type: vmm
+      epg: '{{ epgName }}'
+      state: present
+      tenant: '{{ tenant }}'
+      use_proxy: no
+      use_ssl: yes
+      validate_certs: no
+      vm_provider: '{{ vmProvider }}'
+  - name: Create Cisco OPFLEX Annotated Namespace
+    k8s: 
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: '{{ meta.name }}'
+          labels:
+            controller: ACI-Operator
+          annotations: 
+            opflex.cisco.com/endpoint-group: ' {"tenant":"{{ tenant }}","app-profile":"{{ ap }}","name":"{{ meta.name }}"} '

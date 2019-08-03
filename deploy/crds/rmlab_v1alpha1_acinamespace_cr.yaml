@@ -1,0 +1,6 @@
+apiVersion: rmlab.cisco.com/v1alpha1
+kind: AciNamespace
+metadata:
+  name: acins-1
+spec:
+  epgcontractmaster: "kube-default"
