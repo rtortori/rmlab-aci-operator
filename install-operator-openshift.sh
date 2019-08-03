@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "This implementation is supported on the following platforms:"
+echo "Openshift Container Platform v3.11+"
+
 # Deploy OCP Prerequisites
 oc apply -f deploy/openshift/prereqs-ocp-aci-operator.yaml
 
