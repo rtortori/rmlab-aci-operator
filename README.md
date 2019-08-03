@@ -1,5 +1,5 @@
 # Cisco RMLAB ACI Operator
-#####An operator that extends Kubernetes APIs allowing for automatic EPG and annotated namespace creation<br>
+##### An operator that extends Kubernetes APIs allowing for automatic EPG and annotated namespace creation<br>
 Disclaimer: This is NOT an official Cisco application and comes with absolute NO WARRANTY! <br>Please check LICENSE-CISCO.md for further information <br>
 
 ### Supported platforms
