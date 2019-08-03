@@ -3,8 +3,9 @@
 Disclaimer: This is NOT an official Cisco application and comes with absolute NO WARRANTY! <br>Please check LICENSE-CISCO.md for further information <br>
 
 ### Supported platforms
-* Kubernetes v1.11.3+ 
-* Openshift Container Platform v3.11+
+* Kubernetes v1.11.3+ (Tested with ACI 4.1)
+* Openshift Container Platform v3.11+ (Should work but needs testing)
+
 
 ### Installation
 Kubernetes
