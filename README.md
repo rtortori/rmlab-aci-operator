@@ -1,12 +1,12 @@
 # Cisco RMLAB ACI Operator
-#####An operator that extends Kubernetes APIs allowing for automatic EPG and annotated namespace creation 
-######Disclaimer: This is NOT an official Cisco application and comes with absolute NO WARRANTY! <br>Please check LICENSE-CISCO.md for further information <br>
+#####An operator that extends Kubernetes APIs allowing for automatic EPG and annotated namespace creation<br>
+Disclaimer: This is NOT an official Cisco application and comes with absolute NO WARRANTY! <br>Please check LICENSE-CISCO.md for further information <br>
 
-#### Supported platforms
+### Supported platforms
 * Kubernetes v1.11.3+ 
 * Openshift Container Platform v3.11+
 
-#### Installation
+### Installation
 Kubernetes
 
 ``` ./install-operator-kubernetes.sh```
@@ -15,13 +15,13 @@ Openshift
 
 ``` ./install-operator-openshift.sh```
 
-#### Operational Model
+### Operational Model
 The CRD implements a new resource called `AciNamespace` under the API `rmlab.cisco.com/v1alpha1`.<br>
 
 ACI Admins are required to pre-provision EPGs with the right contract as per corporate policies. <br>
 Once the EPGs have been defined, Kubernetes admins can reference to their names as EPG Contract Masters (created EPGs will inherit contracts from those EPGs).<br>
 
-#### Usage
+### Usage
 
 AciNamespace creation YAML:
 
@@ -46,7 +46,7 @@ This will:
 * Configure `kube-default` EPG as the contract master for the `frontend` EPG
 * Create a Kubernetes namespace called `frontend` with the correct opflex annotation
 
-##### Example
+#### Example
 ```
 cat <<EOF | kubectl apply -f -
 apiVersion: rmlab.cisco.com/v1alpha1
@@ -80,3 +80,5 @@ No resource quota.
 
 No resource limits.
 ```
+
+![alt text](https://raw.githubusercontent.com/rtortori/rmlab-aci-operator/master/screenshots/epg.png "EPGs in ACI")
