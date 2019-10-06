@@ -6,6 +6,16 @@ Disclaimer: This is NOT an official Cisco application and comes with absolute NO
 * Kubernetes v1.11.3+ (Tested with ACI 4.1)
 * Openshift Container Platform v3.11+ (Should work but needs testing)
 
+<b>Note:</b> the operator uses Volumes. It will NOT start if `docker-novolume-plugin` is used.
+
+### Differences between Kubernetes and Openshift
+
+| Topic        | Kubernetes           | Openshift  |
+| ------------- |-------------| -----|
+| Scheduling      | Required to run on any master node | Preferred on master nodes |
+| Resource creation      | Creates a namespace      |   Creates a project |
+| Runs on namespace| kube-default      |    aci-containers-system |
+
 
 ### Installation
 Kubernetes

@@ -19,9 +19,10 @@ spec:
         effect: "NoSchedule"
       affinity:
         nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
               - key: node-role.kubernetes.io/master
                 operator: Exists
       serviceAccountName: aci-operator-serviceaccount
