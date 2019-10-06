@@ -21,7 +21,6 @@ spec:
     storage: true
   validation:
     openAPIV3Schema:
-      type: object
       description: "ACI CNI Namespace"
       properties:
         spec:
