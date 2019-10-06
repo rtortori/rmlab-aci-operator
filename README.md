@@ -22,6 +22,8 @@ The CRD implements a new resource called `AciNamespace` under the API `rmlab.cis
 ACI Admins are required to pre-provision EPGs with the right contract as per corporate policies. <br>
 Once the EPGs have been defined, Kubernetes admins can reference to their names as EPG Contract Masters (created EPGs will inherit contracts from those EPGs).<br>
 
+The operator works for Kubernetes and Openshift. During the CR creation, the user needs to specify whether this is a Kubernetes or Openshift cluster, in case the `openshift_project` spec is `True`, the operator will create a Project instead of a Namespace.
+
 ### Usage
 
 AciNamespace creation YAML:
@@ -33,11 +35,13 @@ metadata:
   name: frontend
 spec:
   epgcontractmaster: "kube-default"
+  openshift_project: False
 ```
 
 Where:<br>
 `name` is the desired name of the EPG and Kubernetes namespace<br>
-`epgcontractmaster` is the EPG contract master name
+`epgcontractmaster` is the EPG contract master name<br>
+`openshift_project` is a boolean that instructs the operator whether to create an Openshift project, instead of a Namespace
 
 This will:
 
@@ -45,7 +49,7 @@ This will:
 * Create a new EPG in the `kubernetes` application profile
 * Bind the `frontend` EPG to the VMM correct domain
 * Configure `kube-default` EPG as the contract master for the `frontend` EPG
-* Create a Kubernetes namespace called `frontend` with the correct opflex annotation
+* Create a Kubernetes namespace or Openshift project called `frontend` with the correct opflex annotation
 
 #### Example
 ```
@@ -56,6 +60,7 @@ metadata:
   name: backend
 spec:
   epgcontractmaster: "kube-default"
+  openshift_project: False
 EOF
 	
 acinamespace.rmlab.cisco.com/backend created

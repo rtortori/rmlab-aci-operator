@@ -12,6 +12,7 @@
     bd: 'kube-pod-bd'
     apicHost: "{{ jsonVar['apic-hosts'][0] }}"
     masterEpg: '{{ epgcontractmaster }}'
+    openshift: '{{ openshift_project }}'
   tasks:
   - name: create EPG
     aci_epg:
@@ -65,7 +66,8 @@
       use_ssl: yes
       validate_certs: no
       vm_provider: '{{ vmProvider }}'
-  - name: Create Cisco OPFLEX Annotated Namespace
+  - name: Create Cisco OPFLEX Annotated Namespace for Kubernetes
+    when: openshift == False
     k8s: 
       state: present
       definition:
@@ -77,3 +79,16 @@
             controller: ACI-Operator
           annotations: 
             opflex.cisco.com/endpoint-group: ' {"tenant":"{{ tenant }}","app-profile":"{{ ap }}","name":"{{ meta.name }}"} '
+  - name: Create Cisco OPFLEX Annotated Openshift Project
+    when: openshift == True
+    k8s: 
+      state: present
+      definition:
+        apiVersion: project.openshift.io/v1
+        kind: Project
+        metadata:
+          name: '{{ meta.name }}'
+          annotations:
+            opflex.cisco.com/endpoint-group: ' {"tenant":"{{ tenant }}","app-profile":"{{ ap }}","name":"{{ meta.name }}"} '
+          labels:
+            controller: ACI-Operator
