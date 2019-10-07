@@ -4,7 +4,7 @@ Disclaimer: This is NOT an official Cisco application and comes with absolute NO
 
 ### Supported platforms
 * Kubernetes v1.11.3+ (Tested with ACI 4.1)
-* Openshift Container Platform v3.11+ (Should work but needs testing)
+* Openshift Container Platform v3.11+ (Tested with ACI 4.1)
 
 <b>Note:</b> the operator uses Volumes. It will NOT start if `docker-novolume-plugin` is used.
 
