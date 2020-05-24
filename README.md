@@ -3,7 +3,7 @@
 Disclaimer: This is NOT an official Cisco application and comes with absolute NO WARRANTY! <br>Please check LICENSE-CISCO.md for further information <br>
 
 ### Supported platforms
-* Kubernetes v1.11.3+ (Tested with ACI 4.1)
+* Kubernetes v1.11.3+ (Tested with ACI 4.1, 4.2)
 * Openshift Container Platform v3.11+ (Tested with ACI 4.1)
 
 <b>Note:</b> the operator uses Volumes. It will NOT start if `docker-novolume-plugin` is used.
@@ -27,7 +27,7 @@ Openshift
 ``` ./install-operator-openshift.sh```
 
 ### Operational Model
-The CRD implements a new resource called `AciNamespace` under the API `rmlab.cisco.com/v1alpha1`.<br>
+The CRD implements a new resource called `AciNamespace` under the API `rmlab.cisco.com/v1alpha2`.<br>
 
 ACI Admins are required to pre-provision EPGs with the right contract as per corporate policies. <br>
 Once the EPGs have been defined, Kubernetes admins can reference to their names as EPG Contract Masters (created EPGs will inherit contracts from those EPGs).<br>
@@ -39,7 +39,7 @@ The operator works for Kubernetes and Openshift. During the CR creation, the use
 AciNamespace creation YAML:
 
 ```
-apiVersion: rmlab.cisco.com/v1alpha1
+apiVersion: rmlab.cisco.com/v1alpha2
 kind: AciNamespace
 metadata:
   name: frontend
@@ -64,7 +64,7 @@ This will:
 #### Example
 ```
 cat <<EOF | kubectl apply -f -
-apiVersion: rmlab.cisco.com/v1alpha1
+apiVersion: rmlab.cisco.com/v1alpha2
 kind: AciNamespace
 metadata:
   name: backend
@@ -98,3 +98,8 @@ No resource limits.
 ```
 
 ![alt text](https://raw.githubusercontent.com/rtortori/rmlab-aci-operator/master/screenshots/epg.png "EPGs in ACI")
+
+#### TODO
+- add build instructions
+- add cleanup finalizer to watches.yaml to selectively remove namespaces and EPG if can_delete is 'true'
+- decouple ACI objects into a dedicated CRD (i.e. aciepg, acicontract, etc.)
