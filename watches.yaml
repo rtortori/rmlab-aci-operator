@@ -1,7 +1,7 @@
 ---
-- version: v1alpha1
-  group: rmlab.cisco.com
-  kind: AciNamespace
-  playbook: /opt/ansible/playbooks/aci-operator-playbook.yaml
-  reconcilePeriod: 10s
-  watchClusterScopedResources: True
+  - version: v1alpha2
+    group: rmlab.cisco.com
+    kind: AciNamespace
+    playbook: /opt/ansible/playbooks/aci-namespace-playbook.yaml
+    reconcilePeriod: 10s
+    watchClusterScopedResources: True

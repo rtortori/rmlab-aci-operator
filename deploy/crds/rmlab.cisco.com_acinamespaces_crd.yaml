@@ -14,9 +14,9 @@ spec:
     - aci
   subresources:
     status: {}
-  version: v1alpha1
+  version: v1alpha2
   versions:
-  - name: v1alpha1
+  - name: v1alpha2
     served: true
     storage: true
   validation:
@@ -31,3 +31,12 @@ spec:
               type: string
             openshift_project:
               type: boolean
+  additionalPrinterColumns:
+    - name: EPG_CONTRACT_MASTER
+      type: string
+      description: The EPG Contract Master used as a template
+      JSONPath: .spec.epgcontractmaster
+    - name: IS_OPENSHIFT
+      type: boolean
+      description: Is this an openshift project?
+      JSONPath: .spec.openshift_project

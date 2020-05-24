@@ -23,7 +23,7 @@
       tenant: '{{ tenant}}'
       ap: '{{ ap }}'
       epg: '{{ epgName }}'
-      description: 'ACI Operator - apiVersion: rmlab.cisco.com/v1alpha1'
+      description: 'ACI Operator - apiVersion: rmlab.cisco.com/v1alpha2'
       bd: '{{ bd }}'
       use_ssl: yes
       validate_certs: no

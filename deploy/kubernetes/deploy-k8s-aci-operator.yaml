@@ -31,7 +31,7 @@ spec:
           - /usr/local/bin/ao-logs
           - /tmp/ansible-operator/runner
           - stdout
-          image: "rtortori/rmlab-aci-operator:apic4.1-v1alpha1-v2"
+          image: "rtortori/rmlab-aci-operator:apic4.2-v1alpha2"
           imagePullPolicy: "Always"
           volumeMounts:
           - mountPath: /tmp/ansible-operator/runner
@@ -42,7 +42,7 @@ spec:
           - name: aci-containers-config-volume
             mountPath: /opt/ansible/aci-containers-config/
         - name: operator
-          image: "rtortori/rmlab-aci-operator:apic4.1-v1alpha1-v2"
+          image: "rtortori/rmlab-aci-operator:apic4.2-v1alpha2"
           imagePullPolicy: "Always"
           volumeMounts:
           - mountPath: /tmp/ansible-operator/runner
@@ -70,4 +70,3 @@ spec:
           secret:
             defaultMode: 420
             secretName: aci-user-cert
-
