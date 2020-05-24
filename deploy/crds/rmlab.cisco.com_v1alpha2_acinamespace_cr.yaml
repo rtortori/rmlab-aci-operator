@@ -5,3 +5,4 @@ metadata:
 spec:
   epgcontractmaster: "kube-default"
   openshift_project: False
+  aciCleanup: False

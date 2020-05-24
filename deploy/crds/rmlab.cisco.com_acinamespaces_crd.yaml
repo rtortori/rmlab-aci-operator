@@ -31,6 +31,8 @@ spec:
               type: string
             openshift_project:
               type: boolean
+            aciCleanup:
+              type: boolean
   additionalPrinterColumns:
     - name: EPG_CONTRACT_MASTER
       type: string
@@ -40,3 +42,7 @@ spec:
       type: boolean
       description: Is this an openshift project?
       JSONPath: .spec.openshift_project
+    - name: ACI_CLEANUP
+      type: boolean
+      description: Remove ACI object when CR is deleted
+      JSONPath: .spec.aciCleanup
