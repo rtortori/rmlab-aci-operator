@@ -3,6 +3,6 @@ kind: AciNamespace
 metadata:
   name: acins-1
 spec:
-  epgContractMaster: "kube-default"
-  openshiftProject: False
-  aciCleanup: False
+  epgcontractmaster: "kube-default"
+  openshiftproject: False
+  acicleanup: False
