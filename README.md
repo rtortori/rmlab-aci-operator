@@ -80,9 +80,8 @@ acinamespace.rmlab.cisco.com/backend created
 
 ```
 ~@ccp$ kubectl get acinamespace
-NAME       AGE
-backend    2m
-frontend   1h
+NAME      EPG_CONTRACT_MASTER   IS_OPENSHIFT   ACI_CLEANUP
+backend   kube-default          false          false
 ```
 
 ```
