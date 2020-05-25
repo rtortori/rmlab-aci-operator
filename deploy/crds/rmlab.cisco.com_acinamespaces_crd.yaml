@@ -29,7 +29,7 @@ spec:
           properties:
             epgContractMaster:
               type: string
-              openshiftProject:
+            openshiftProject:
               type: boolean
             aciCleanup:
               type: boolean
