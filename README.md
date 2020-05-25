@@ -6,7 +6,9 @@ Disclaimer: This is NOT an official Cisco application and comes with absolute NO
 * Kubernetes v1.11.3+ (Tested with ACI 4.1, 4.2)
 * Openshift Container Platform v3.11+ (Tested with ACI 4.1)
 
-<b>Note:</b> the operator uses Volumes. It will NOT start if `docker-novolume-plugin` is used.
+<b>Note:</b> The operator uses Volumes. It will NOT start if `docker-novolume-plugin` is used.<br>
+<b>Note:</b> This operator still uses `apiextensions.k8s.io/v1beta1` for compatibility reasons. It will be migrated to `apiextensions.k8s.io/v1` in the future (supported Kubernenetes > 1.16)
+
 
 ### Differences between Kubernetes and Openshift
 
@@ -32,7 +34,7 @@ The CRD implements a new resource called `AciNamespace` under the API `rmlab.cis
 ACI Admins are required to pre-provision EPGs with the right contract as per corporate policies. <br>
 Once the EPGs have been defined, Kubernetes admins can reference to their names as EPG Contract Masters (created EPGs will inherit contracts from those EPGs).<br>
 
-The operator works for Kubernetes and Openshift. During the CR creation, the user needs to specify whether this is a Kubernetes or Openshift cluster, in case the `openshiftProject` spec is `True`, the operator will create a Project instead of a Namespace.
+The operator works for Kubernetes and Openshift. During the CR creation, the user needs to specify whether this is a Kubernetes or Openshift cluster, in case the `openshiftproject` spec is `True`, the operator will create a Project instead of a Namespace.
 
 ### Usage
 
@@ -44,15 +46,16 @@ kind: AciNamespace
 metadata:
   name: frontend
 spec:
-  epgContractMaster: "kube-default"
-  openshift_project: False
+  epgcontractmaster: "kube-default"
+  openshiftproject: False
+  acicleanup: False
 ```
 
 Where:<br>
 `name` is the desired name of the EPG and Kubernetes namespace<br>
-`epgContractMaster` is the EPG contract master name<br>
-`openshiftProject` is a boolean that instructs the operator whether to create an Openshift project, instead of a Namespace
-`aciCleanup` is a boolean that allows for ACI cleanup if the object is deleted. Note that as of today, this is currently not implemented and this spec has been added in preparation for the feature to happen
+`epgcontractmaster` is the EPG contract master name<br>
+`openshiftproject` is a boolean that instructs the operator whether to create an Openshift project, instead of a Namespace
+`acicleanup` is a boolean that allows for ACI cleanup if the object is deleted. Note that as of today, this is currently not implemented and this spec has been added in preparation for the feature to happen
 
 This will:
 
@@ -70,9 +73,9 @@ kind: AciNamespace
 metadata:
   name: backend
 spec:
-  epgContractMaster: "kube-default"
-  openshiftProject: False
-  aciCleanup: False
+  epgcontractmaster: "kube-default"
+  openshiftproject: False
+  acicleanup: False
 EOF
 	
 acinamespace.rmlab.cisco.com/backend created
@@ -85,12 +88,12 @@ backend   kube-default          false          false
 ```
 
 ```
-~@ccp$ kubectl describe namespace frontend
-Name:         frontend
+~@ccp$ kubectl describe namespace backend
+Name:         backend
 Labels:       controller=ACI-Operator
-Annotations:  operator-sdk/primary-resource: /frontend
+Annotations:  operator-sdk/primary-resource: /backend
               operator-sdk/primary-resource-type: AciNamespace.rmlab.cisco.com
-              opflex.cisco.com/endpoint-group:  {"tenant":"rtortori_operator","app-profile":"kubernetes","name":"frontend"}
+              opflex.cisco.com/endpoint-group:  {"tenant":"gosub","app-profile":"kubernetes","name":"backend"}
 Status:       Active
 
 No resource quota.
@@ -102,5 +105,5 @@ No resource limits.
 
 #### TODO
 - add build instructions
-- add cleanup finalizer to watches.yaml to selectively remove namespaces and EPG if can_delete is 'true'
-- decouple ACI objects into a dedicated CRD (i.e. aciepg, acicontract, etc.)
+- add cleanup finalizer to watches.yaml to selectively remove namespaces and EPG if acicleanup is 'true'
+- decouple ACI objects into a dedicated CRDs (i.e. aciepg, acicontract, etc.)
