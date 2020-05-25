@@ -32,7 +32,7 @@ The CRD implements a new resource called `AciNamespace` under the API `rmlab.cis
 ACI Admins are required to pre-provision EPGs with the right contract as per corporate policies. <br>
 Once the EPGs have been defined, Kubernetes admins can reference to their names as EPG Contract Masters (created EPGs will inherit contracts from those EPGs).<br>
 
-The operator works for Kubernetes and Openshift. During the CR creation, the user needs to specify whether this is a Kubernetes or Openshift cluster, in case the `openshift_project` spec is `True`, the operator will create a Project instead of a Namespace.
+The operator works for Kubernetes and Openshift. During the CR creation, the user needs to specify whether this is a Kubernetes or Openshift cluster, in case the `openshiftProject` spec is `True`, the operator will create a Project instead of a Namespace.
 
 ### Usage
 
@@ -44,14 +44,15 @@ kind: AciNamespace
 metadata:
   name: frontend
 spec:
-  epgcontractmaster: "kube-default"
+  epgContractMaster: "kube-default"
   openshift_project: False
 ```
 
 Where:<br>
 `name` is the desired name of the EPG and Kubernetes namespace<br>
-`epgcontractmaster` is the EPG contract master name<br>
-`openshift_project` is a boolean that instructs the operator whether to create an Openshift project, instead of a Namespace
+`epgContractMaster` is the EPG contract master name<br>
+`openshiftProject` is a boolean that instructs the operator whether to create an Openshift project, instead of a Namespace
+`aciCleanup` is a boolean that allows for ACI cleanup if the object is deleted. Note that as of today, this is currently not implemented and this spec has been added in preparation for the feature to happen
 
 This will:
 
@@ -69,8 +70,9 @@ kind: AciNamespace
 metadata:
   name: backend
 spec:
-  epgcontractmaster: "kube-default"
-  openshift_project: False
+  epgContractMaster: "kube-default"
+  openshiftProject: False
+  aciCleanup: False
 EOF
 	
 acinamespace.rmlab.cisco.com/backend created

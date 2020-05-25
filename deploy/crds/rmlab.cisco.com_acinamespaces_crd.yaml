@@ -24,12 +24,12 @@ spec:
       description: "ACI CNI Namespace"
       properties:
         spec:
-          required: ["epgcontractmaster", "openshift_project"]
+          required: ["epgContractMaster", "openshiftProject", "aciCleanup"]
           type: object
           properties:
-            epgcontractmaster:
+            epgContractMaster:
               type: string
-            openshift_project:
+              openshiftProject:
               type: boolean
             aciCleanup:
               type: boolean
@@ -37,11 +37,11 @@ spec:
     - name: EPG_CONTRACT_MASTER
       type: string
       description: The EPG Contract Master used as a template
-      JSONPath: .spec.epgcontractmaster
+      JSONPath: .spec.epgContractMaster
     - name: IS_OPENSHIFT
       type: boolean
       description: Is this an openshift project?
-      JSONPath: .spec.openshift_project
+      JSONPath: .spec.openshiftProject
     - name: ACI_CLEANUP
       type: boolean
       description: Remove ACI object when CR is deleted

@@ -1,5 +1,5 @@
 ---
-- name: ACI Operator Playbook 
+- name: ACI Namespace Operator Playbook 
   connection: local
   hosts: localhost
   vars:
@@ -11,8 +11,8 @@
     ap: 'kubernetes'
     bd: 'kube-pod-bd'
     apicHost: "{{ jsonVar['apic-hosts'][0] }}"
-    masterEpg: '{{ epgcontractmaster }}'
-    openshift: '{{ openshift_project }}'
+    masterEpg: '{{ epgContractMaster }}'
+    openshift: '{{ openshiftProject }}'
   tasks:
   - name: create EPG
     aci_epg:
