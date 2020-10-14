@@ -1,0 +1,29 @@
+---
+- name: ACI Namespace Operator Playbook - Finaliser 
+  connection: local
+  hosts: localhost
+  vars:
+    jsonVar: "{{ lookup('file', '/opt/ansible/aci-containers-config/controller-config') | from_json }}"
+    epgName: '{{ meta.name }}'
+    tenant: "{{ jsonVar['apic-username'] }}"
+    certKey: "{{ jsonVar['apic-private-key-path'] }}"
+    vmProvider: "{{ jsonVar['aci-vmm-type'] | lower }}"
+    ap: 'kubernetes'
+    bd: 'kube-pod-bd'
+    apicHost: "{{ jsonVar['apic-hosts'][0] }}"
+    masterEpg: '{{ epgcontractmaster }}'
+    openshift: '{{ openshiftproject }}'
+  tasks:
+    - name: Delete EPG
+      cisco.aci.aci_epg:
+        host: '{{ apicHost }}'
+        cert_key: '{{ certKey }}'
+        certificate_name: '{{ tenant }}.crt'
+        username: '{{ tenant }}'
+        tenant: '{{ tenant}}'
+        ap: '{{ ap }}'
+        epg: '{{ epgName }}'
+        bd: '{{ bd }}'
+        use_ssl: yes
+        validate_certs: no
+        state: absent

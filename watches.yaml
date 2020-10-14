@@ -5,3 +5,6 @@
     playbook: /opt/ansible/playbooks/aci-namespace-playbook.yaml
     reconcilePeriod: 10s
     watchClusterScopedResources: True
+    finalizer:
+      name: finalizer.aci.rmlab.cisco.com
+      playbook: /opt/ansible/playbooks/aci-namespace-finaliser.yaml
