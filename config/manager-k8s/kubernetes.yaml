@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acins-operator-rmlab
+  namespace: kube-system
+  labels:
+    name: acins-operator-rmlab
+spec:
+  selector:
+    matchLabels:
+      name: acins-operator-rmlab
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: acins-operator-rmlab
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: manager
+          args:
+            - "--enable-leader-election"
+            - "--leader-election-id=rmlab-aci-operator-sdk1"
+          image: controller:latest
+          imagePullPolicy: "Always"
+          volumeMounts:
+          - mountPath: /usr/local/etc/aci-cert/
+            name: aci-user-cert-volume
+          - name: aci-containers-config-volume
+            mountPath: /opt/ansible/aci-containers-config/
+          env:
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "aci-operator"
+      volumes:
+        - name: aci-containers-config-volume
+          configMap:
+            name: aci-containers-config
+        - name: aci-user-cert-volume
+          secret:
+            defaultMode: 420
+            secretName: aci-user-cert

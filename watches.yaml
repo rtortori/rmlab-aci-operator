@@ -1,10 +1,12 @@
 ---
-  - version: v1alpha2
-    group: rmlab.cisco.com
-    kind: AciNamespace
-    playbook: /opt/ansible/playbooks/aci-namespace-playbook.yaml
-    reconcilePeriod: 10s
-    watchClusterScopedResources: True
-    finalizer:
-      name: finalizer.aci.rmlab.cisco.com
-      playbook: /opt/ansible/playbooks/aci-namespace-finaliser.yaml
+- version: v1
+  group: rmlab.cisco.com
+  kind: AciNamespace
+  playbook: /opt/ansible/playbooks/aci-namespace-playbook.yaml
+  reconcilePeriod: 10s
+  watchClusterScopedResources: True
+  finalizer:
+    name: finalizer.aci.rmlab.cisco.com
+    playbook: /opt/ansible/playbooks/aci-namespace-finaliser.yaml
+    vars:
+      state: absent

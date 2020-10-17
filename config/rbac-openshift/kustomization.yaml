@@ -1,0 +1,2 @@
+resources:
+    - openshift-serviceaccount-crb.yaml

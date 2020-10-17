@@ -1,0 +1,97 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: acinamespaces.rmlab.cisco.com
+spec:
+  group: rmlab.cisco.com
+  names:
+    kind: AciNamespace
+    listKind: AciNamespaceList
+    plural: acinamespaces
+    singular: acinamespace
+    shortNames:
+    - aci
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: "ACI CNI Namespace"
+        required: ["spec"]
+        properties:
+          status:
+            type: object
+            properties:
+              mepg_consumer_contracts: 
+                type: string 
+              mepg_provider_contracts: 
+                type: string 
+              consumer_contracts: 
+                type: string
+              provider_contracts: 
+                type: string 
+              mepg_dn: 
+                type: string 
+              bridge_domain: 
+                type: string 
+                
+          spec:
+            required: ["op_managed"]
+            type: object
+            properties:
+              epgcontractmaster:
+                type: string
+                default: "N/A"
+              openshiftproject:
+                type: boolean
+                default: False
+              op_managed:
+                type: boolean
+              applicationprofile:
+                type: string
+                default: "kubernetes"
+              bridgedomain:
+                type: string
+                default: "kube-pod-bd"
+        type: object
+    additionalPrinterColumns:
+      - name: EPG-CONTRACT-MASTER
+        type: string
+        description: The EPG Contract Master used as a template
+        jsonPath: .spec.epgcontractmaster
+        priority: 0
+      - name: ACI-BD
+        type: string
+        description: ACI Bridge Domain
+        jsonPath: .status.bridge_domain
+        priority: 0
+      - name: M-EPG-C-CONTRACTS
+        type: string
+        description: Consumer contracts of the Master EPG
+        jsonPath: .status.mepg_consumer_contracts
+        priority: 1
+      - name: M-EPG-P-CONTRACTS
+        type: string
+        description: Provider contracts of the Master EPG
+        jsonPath: .status.mepg_provider_contracts
+        priority: 1
+      - name: C-CONTRACTS
+        type: string
+        description: Consumer contracts of EPG
+        jsonPath: .status.consumer_contracts
+        priority: 1
+      - name: P-CONTRACTS
+        type: string
+        description: Provider contracts of EPG
+        jsonPath: .status.provider_contracts
+        priority: 1
+      - name: MANAGED
+        type: boolean
+        description: True if the operator manages the implementation. If False, if you delete the AciNamespace the controller will not execute any finaliser
+        jsonPath: .spec.op_managed
+        priority: 0
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -1,37 +1,138 @@
 ---
-- name: ACI Namespace Operator Playbook 
+- name: RMLAB ACI Namespace Operator Playbook 
   connection: local
   hosts: localhost
+
   vars:
+    # Credentials, APIC hosts, tenant, etc. are fetched from the aci-containers-config configmap
+    # aci-containers-config is created by acc-provisioner, so we use the same credentials granted to the aci-containers pods
+    # masterEpg, openshift and op_managed are specs fetched from the Custom Resource (CR) we create each time we want an AciNamespace
     jsonVar: "{{ lookup('file', '/opt/ansible/aci-containers-config/controller-config') | from_json }}"
-    epgName: '{{ meta.name }}'
+    epgName: '{{ ansible_operator_meta.name }}'
     tenant: "{{ jsonVar['apic-username'] }}"
     certKey: "{{ jsonVar['apic-private-key-path'] }}"
     vmProvider: "{{ jsonVar['aci-vmm-type'] | lower }}"
-    ap: 'kubernetes'
-    bd: 'kube-pod-bd'
-    apicHost: "{{ jsonVar['apic-hosts'][0] }}"
+    ap: '{{ applicationprofile }}'
+    bd: '{{ bridgedomain }}'
+    apicHost: "{{ jsonVar['apic-hosts'] | random }}"
+    # If you just want to attach to an existing EPG, don't specify any epgcontractmaster in the CR (Default is 'N/A') and set op_managed to 'False'
     masterEpg: '{{ epgcontractmaster }}'
     openshift: '{{ openshiftproject }}'
+
+    # The op_managed spec is a boolean flag you set in the CR
+    # If false, The operator will still manage the EPG in ACI, but will not delete the EPG and the Kubernetes namespace if you delete the CR
+    # 
+    # This covers the scenario where you want to initially create and manage with reconciliatiom all resources but at some point in time
+    # you want to detach from the operator and manage everything manually. You can patch the CR at any time and set it to false. Then delete the CR
+    # Default is true (fully manage). This means if you delete an AciNamespace, you will also delete the EPG in ACI and the namespace in K8S
+    op_managed: '{{ op_managed }}'
+
+    # Set initial use case values
+    use_case_1: false
+    use_case_2: false
+    use_case_3: false
+    use_case_4: false
+    use_case_6: false
+    use_case_8: false
+
+
   tasks:
-  - name: create EPG
-    aci_epg:
+  
+  # Query the EPG name
+  - name: Check if the EPG already exists
+    cisco.aci.aci_epg:
       host: '{{ apicHost }}'
       cert_key: '{{ certKey }}'
+      certificate_name: '{{ tenant }}.crt'
+      username: '{{ tenant }}'
+      tenant: '{{ tenant }}'
+      ap: '{{ ap }}'
+      epg: '{{ epgName }}'
+      state: query
+      use_ssl: yes
+      validate_certs: no
+    register: query_EPG
+
+ 
+  # Define Use cases variables. Use cases 5 and 7 will cause the playbook to terminate and CR deleted
+  - name: Define Use Case 1
+    set_fact:
+      use_case_1: true
+    when: query_EPG | json_query('current[*]') == [] and epgcontractmaster != "N/A" and op_managed == true
+
+  - name: Define Use Case 2 (NOT RECOMMENDED)
+    set_fact:
+      use_case_2: true
+    when: query_EPG | json_query('current[*]') != [] and epgcontractmaster != "N/A" and op_managed == true
+
+  - name: Define Use Case 3
+    set_fact:
+      use_case_3: true
+    when: query_EPG | json_query('current[*]') == [] and epgcontractmaster != "N/A" and op_managed == false
+
+  - name: Define Use Case 4
+    set_fact:
+      use_case_4: true
+    when: query_EPG | json_query('current[*]') != [] and epgcontractmaster != "N/A" and op_managed == false
+
+  - name: Define Use Case 5 (NOT SUPPORTED - PLAYBOOK WILL TERMINATE AND CR REMOVED)
+    k8s: 
+      state: absent
+      definition:
+        apiVersion: rmlab.cisco.com/v1
+        kind: AciNamespace
+        metadata:
+          name: '{{ ansible_operator_meta.name }}'
+    when: query_EPG | json_query('current[*]') == [] and epgcontractmaster == "N/A" and op_managed == true
+
+  - name: Define Use Case 6 (NOT RECOMMENDED)
+    set_fact:
+      use_case_6: true
+    when: query_EPG | json_query('current[*]') != [] and epgcontractmaster == "N/A" and op_managed == true
+
+  - name: Define Use Case 7 (NOT SUPPORTED - PLAYBOOK WILL TERMINATE AND CR REMOVED)
+    k8s: 
+      state: absent
+      definition:
+        apiVersion: rmlab.cisco.com/v1
+        kind: AciNamespace
+        metadata:
+          name: '{{ ansible_operator_meta.name }}'
+    when: query_EPG | json_query('current[*]') == [] and epgcontractmaster == "N/A" and op_managed == false
+
+  - name: Define Use Case 8
+    set_fact:
+      use_case_8: true
+    when: query_EPG | json_query('current[*]') != [] and epgcontractmaster == "N/A" and op_managed == false
+
+  # End of use case definitions
+
+  # Ideally, this condition should never be present, however we set a failsafe mechanism to avoid problems
+  - name: Exit playbook if none of the use cases is triggered
+    meta: end_play
+    when: use_case_1 == false and use_case_2 == false and use_case_3 == false and use_case_4 == false and use_case_6 == false and use_case_8 == false 
+
+  - name: Create EPG
+    cisco.aci.aci_epg:
+      host: '{{ apicHost }}'
+      cert_key: '{{ certKey }}'                     
       certificate_name: '{{ tenant }}.crt'
       username: '{{ tenant }}'
       tenant: '{{ tenant}}'
       ap: '{{ ap }}'
       epg: '{{ epgName }}'
-      description: 'ACI Operator - apiVersion: rmlab.cisco.com/v1alpha2'
+      description: 'ACI Operator - apiVersion: rmlab.cisco.com/v1'
       bd: '{{ bd }}'
       use_ssl: yes
       validate_certs: no
       use_proxy: no
       state: present
+    when: use_case_1 == true or use_case_3 == true or use_case_8 == true
+
+
   - name: Attach Master EPG
     ignore_errors: yes
-    aci_rest:
+    cisco.aci.aci_rest:
       host: '{{ apicHost }}'
       cert_key: '{{ certKey }}'
       certificate_name: '{{ tenant }}.crt'
@@ -50,8 +151,11 @@
             "children": []
           }
          }
+    when: use_case_1 == true or use_case_2 == true or use_case_3 == true or use_case_4 == true
+
+
   - name: Bind EPG to VMM Domain
-    aci_epg_to_domain:
+    cisco.aci.aci_epg_to_domain:
       ap: '{{ ap }}'
       host: '{{ apicHost }}'
       cert_key: '{{ certKey }}'
@@ -66,6 +170,85 @@
       use_ssl: yes
       validate_certs: no
       vm_provider: '{{ vmProvider }}'
+    when: use_case_1 == true or use_case_2 == true or use_case_3 == true or use_case_4 == true or use_case_6 == true or use_case_8 == true
+
+ 
+  - name: Query provider contract to MasterEPG binding
+    cisco.aci.aci_epg_to_contract:
+      host: '{{ apicHost }}'
+      cert_key: '{{ certKey }}'
+      certificate_name: '{{ tenant }}.crt'
+      tenant: '{{ tenant }}'
+      username: '{{ tenant }}'
+      ap: '{{ ap }}'
+      epg: '{{ masterEpg }}'
+      state: query
+      output_level: info
+      contract_type: provider
+      use_ssl: yes
+      validate_certs: no
+    delegate_to: localhost
+    register: mepg_epg_provider_contract
+    when: use_case_1 == true or use_case_2 == true or use_case_3 == true or use_case_4 
+
+
+  - name: Query consumer contract to MasterEPG binding
+    cisco.aci.aci_epg_to_contract:
+      host: '{{ apicHost }}'
+      cert_key: '{{ certKey }}'
+      certificate_name: '{{ tenant }}.crt'
+      tenant: '{{ tenant }}'
+      username: '{{ tenant }}'
+      ap: '{{ ap }}'
+      epg: '{{ masterEpg }}'
+      state: query
+      output_level: info
+      contract_type: consumer
+      use_ssl: yes
+      validate_certs: no
+    delegate_to: localhost
+    register: mepg_epg_consumer_contract 
+    when: use_case_1 == true or use_case_2 == true or use_case_3 == true or use_case_4
+
+
+  - name: Query provider contract to EPG binding
+    cisco.aci.aci_epg_to_contract:
+      host: '{{ apicHost }}'
+      cert_key: '{{ certKey }}'
+      certificate_name: '{{ tenant }}.crt'
+      tenant: '{{ tenant }}'
+      username: '{{ tenant }}'
+      ap: '{{ ap }}'
+      epg: '{{ epgName }}'
+      state: query
+      output_level: info
+      contract_type: provider
+      use_ssl: yes
+      validate_certs: no
+    delegate_to: localhost
+    register: epg_provider_contract
+    when: use_case_1 == true or use_case_2 == true or use_case_3 == true or use_case_4 == true or use_case_6 == true or use_case_8 == true
+
+
+  - name: Query consumer contract to EPG binding
+    cisco.aci.aci_epg_to_contract:
+      host: '{{ apicHost }}'
+      cert_key: '{{ certKey }}'
+      certificate_name: '{{ tenant }}.crt'
+      tenant: '{{ tenant }}'
+      username: '{{ tenant }}'
+      ap: '{{ ap }}'
+      epg: '{{ epgName }}'
+      state: query
+      output_level: info
+      contract_type: consumer
+      use_ssl: yes
+      validate_certs: no
+    delegate_to: localhost
+    register: epg_consumer_contract
+    when: use_case_1 == true or use_case_2 == true or use_case_3 == true or use_case_4 == true or use_case_6 == true or use_case_8 == true
+
+
   - name: Create Cisco OPFLEX Annotated Namespace for Kubernetes
     when: openshift == false
     k8s: 
@@ -74,11 +257,13 @@
         apiVersion: v1
         kind: Namespace
         metadata:
-          name: '{{ meta.name }}'
+          name: '{{ ansible_operator_meta.name }}'
           labels:
             controller: ACI-Operator
           annotations: 
-            opflex.cisco.com/endpoint-group: ' {"tenant":"{{ tenant }}","app-profile":"{{ ap }}","name":"{{ meta.name }}"} '
+            opflex.cisco.com/endpoint-group: ' {"tenant":"{{ tenant }}","app-profile":"{{ ap }}","name":"{{ ansible_operator_meta.name }}"} '
+
+
   - name: Create Cisco OPFLEX Annotated Openshift Project
     when: openshift == true
     k8s: 
@@ -87,8 +272,51 @@
         apiVersion: project.openshift.io/v1
         kind: Project
         metadata:
-          name: '{{ meta.name }}'
+          name: '{{ ansible_operator_meta.name }}'
           annotations:
-            opflex.cisco.com/endpoint-group: ' {"tenant":"{{ tenant }}","app-profile":"{{ ap }}","name":"{{ meta.name }}"} '
+            opflex.cisco.com/endpoint-group: ' {"tenant":"{{ tenant }}","app-profile":"{{ ap }}","name":"{{ ansible_operator_meta.name }}"} '
           labels:
             controller: ACI-Operator
+
+
+  - name: Dump APIC info into Variables
+    set_fact:
+      mepg_consumer_contracts: "{{ mepg_epg_consumer_contract | json_query('current[*].fvAEPg.children[*].fvRsCons.attributes.tDn') }}"
+      mepg_provider_contracts: "{{ mepg_epg_provider_contract | json_query('current[*].fvAEPg.children[*].fvRsProv.attributes.tDn') }}"
+      consumer_contracts: "{{ epg_consumer_contract | json_query('current[*].fvAEPg.children[*].fvRsCons.attributes.tDn') }}"
+      provider_contracts: "{{ epg_provider_contract | json_query('current[*].fvAEPg.children[*].fvRsProv.attributes.tDn') }}"
+      mepg_dn: "{{ mepg_epg_provider_contract | json_query('current[*].fvAEPg.attributes.dn') }}"
+      bridge_domain: '{{ bd }}'
+
+
+  # We set the CR status with the contract names for the CRs with EPG master specified
+  - operator_sdk.util.k8s_status:
+      api_version: rmlab.cisco.com/v1
+      kind: AciNamespace
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: default
+      status:
+        mepg_consumer_contracts: " {{ mepg_consumer_contracts }} "
+        mepg_provider_contracts: " {{ mepg_provider_contracts }} "
+        consumer_contracts: " {{ consumer_contracts }} "
+        provider_contracts: " {{ provider_contracts }} "
+        mepg_dn: " {{ mepg_dn }} "
+        bridge_domain: " {{ bridge_domain }} "
+    when: use_case_1 == true or use_case_2 == true or use_case_3 == true or use_case_4
+  
+
+  # We set the CR status with the contract names for the CRs with no EPG master specified
+  - operator_sdk.util.k8s_status:
+      api_version: rmlab.cisco.com/v1
+      kind: AciNamespace
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: default
+      status:
+        mepg_consumer_contracts: ""
+        mepg_provider_contracts: ""
+        consumer_contracts: " {{ consumer_contracts }} "
+        provider_contracts: " {{ provider_contracts }} "
+        mepg_dn: " {{ mepg_dn }} "
+        bridge_domain: " {{ bridge_domain }} "
+    when: use_case_6 == true or use_case_8 == true
+

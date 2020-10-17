@@ -1,0 +1,8 @@
+domain: cisco.com
+layout: ansible.sdk.operatorframework.io/v1
+projectName: rmlab-aci-operator-sdk1
+resources:
+- group: rmlab
+  kind: AciNamespace
+  version: v1
+version: 3-alpha

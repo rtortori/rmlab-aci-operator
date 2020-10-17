@@ -1,0 +1,11 @@
+## Append samples you want in your CSV to this file as resources ##
+resources:
+- rmlab_v1_acinamespace_use_case_1.yaml
+- rmlab_v1_acinamespace_use_case_2.yaml
+- rmlab_v1_acinamespace_use_case_3.yaml
+- rmlab_v1_acinamespace_use_case_4.yaml
+- rmlab_v1_acinamespace_use_case_5.yaml
+- rmlab_v1_acinamespace_use_case_6.yaml
+- rmlab_v1_acinamespace_use_case_7.yaml
+- rmlab_v1_acinamespace_use_case_8.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

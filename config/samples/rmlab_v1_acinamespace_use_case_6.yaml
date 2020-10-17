@@ -1,0 +1,7 @@
+apiVersion: rmlab.cisco.com/v1
+kind: AciNamespace
+metadata:
+  name: existing-epg-uc6
+spec:
+  openshiftproject: False
+  op_managed: True

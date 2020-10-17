@@ -1,8 +1,0 @@
-apiVersion: rmlab.cisco.com/v1alpha2
-kind: AciNamespace
-metadata:
-  name: acins-1
-spec:
-  epgcontractmaster: "kube-default"
-  openshiftproject: False
-  acicleanup: False

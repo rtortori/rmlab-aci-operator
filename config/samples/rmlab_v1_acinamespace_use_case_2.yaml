@@ -1,0 +1,8 @@
+apiVersion: rmlab.cisco.com/v1
+kind: AciNamespace
+metadata:
+  name: existing-epg-uc2
+spec:
+  epgcontractmaster: "kube-default"
+  openshiftproject: False
+  op_managed: True

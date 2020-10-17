@@ -4,16 +4,26 @@
   hosts: localhost
   vars:
     jsonVar: "{{ lookup('file', '/opt/ansible/aci-containers-config/controller-config') | from_json }}"
-    epgName: '{{ meta.name }}'
+    epgName: '{{ ansible_operator_meta.name }}'
     tenant: "{{ jsonVar['apic-username'] }}"
     certKey: "{{ jsonVar['apic-private-key-path'] }}"
     vmProvider: "{{ jsonVar['aci-vmm-type'] | lower }}"
     ap: 'kubernetes'
     bd: 'kube-pod-bd'
-    apicHost: "{{ jsonVar['apic-hosts'][0] }}"
+    apicHost: "{{ jsonVar['apic-hosts'] | random }}"
     masterEpg: '{{ epgcontractmaster }}'
     openshift: '{{ openshiftproject }}'
+    op_managed: '{{ op_managed }}'
+
+
   tasks:
+
+
+    - name: Exit playbook if the resource is not operator managed
+      meta: end_play
+      when: op_managed == false
+
+
     - name: Delete EPG
       cisco.aci.aci_epg:
         host: '{{ apicHost }}'
@@ -27,3 +37,33 @@
         use_ssl: yes
         validate_certs: no
         state: absent
+
+
+    - name: Delete Annotated Namespace (K8S)
+      when: openshift == false
+      k8s: 
+        state: absent
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: '{{ ansible_operator_meta.name }}'
+            labels:
+              controller: ACI-Operator
+            annotations: 
+              opflex.cisco.com/endpoint-group: ' {"tenant":"{{ tenant }}","app-profile":"{{ ap }}","name":"{{ ansible_operator_meta.name }}"} '
+
+
+    - name: Delete Annotated Project (OCP)
+      when: openshift == true
+      k8s: 
+        state: absent
+        definition:
+          apiVersion: project.openshift.io/v1
+          kind: Project
+          metadata:
+            name: '{{ ansible_operator_meta.name }}'
+            annotations:
+              opflex.cisco.com/endpoint-group: ' {"tenant":"{{ tenant }}","app-profile":"{{ ap }}","name":"{{ ansible_operator_meta.name }}"} '
+            labels:
+              controller: ACI-Operator      
