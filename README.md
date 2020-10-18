@@ -50,10 +50,11 @@ Openshift
 ``` installers/acins-ocp-uninstaller.sh ```
 
 ### Features and Operational Model
-Compared to previous versions, from version 1 the RMLAB ACI Kubernetes Operator has been reworked to address two challenges:
+Compared to previous versions, from version 1 the RMLAB ACI Kubernetes Operator has been reworked to address three challenges:
 
 * Be compliant with the v1 Operator SDK framework data structure and features
 * Implement multiple ACI CNI use cases
+* Allow the user to detach the operator in case manual (traditional) control is required at some point in time (e.g. you realize the infrastructure is getting to complex to be managed by the operator)
 
 For further information on SDK framework v1, please click [here](https://www.openshift.com/blog/operator-sdk-reaches-v1.0)
 
@@ -209,6 +210,11 @@ This is how the EPG looks in APIC
 
 ![alt text](https://raw.githubusercontent.com/rtortori/rmlab-aci-operator/main/screenshots/epg.png "EPGs in ACI")
 
+You can switch mode (Operator managed to unmanaged and viceversa) patching a specific `AciNamespace` at any time 
+
+``` kubectl patch aci youracinamespace -p '{"spec":{"op_managed":false}}' --type=merge ```
+
+Once you delete the CR, if you wish to retake control, you need to recreate the CR. 
 
 ### Customization
 
