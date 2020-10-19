@@ -4,7 +4,7 @@ metadata:
   labels:
     name: acins-operator-rmlab
   name: acins-operator-rmlab
-  namespace: kube-system
+  namespace: aci-containers-system
 spec:
   replicas: 1
   selector:
@@ -36,6 +36,7 @@ spec:
           name: aci-user-cert-volume
         - mountPath: /opt/ansible/aci-containers-config/
           name: aci-containers-config-volume
+      serviceAccountName: aci-operator-serviceaccount
       terminationGracePeriodSeconds: 10
       volumes:
       - configMap:

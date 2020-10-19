@@ -57,41 +57,41 @@ docker-push:
 # Make Kubernetes Installer and Manifests
 k8s-installer: kustomize
 	$(KUSTOMIZE) build config/crd > manifests/acinamespaces-crd.yaml && \
-	$(KUSTOMIZE) build config/rbac-k8s > manifests/acinamespaces-rbac.yaml && \
-	$(KUSTOMIZE) build config/manager-k8s > manifests/acinamespaces-controller.yaml && \
-	echo "kubectl apply -f ../manifests/acinamespaces-rbac.yaml" > installers/acins-kube-installer.sh && \
+	$(KUSTOMIZE) build config/rbac-k8s > manifests/acinamespaces-rbac-k8s.yaml && \
+	$(KUSTOMIZE) build config/manager-k8s > manifests/acinamespaces-controller-k8s.yaml && \
+	echo "kubectl apply -f ../manifests/acinamespaces-rbac-k8s.yaml" > installers/acins-kube-installer.sh && \
 	echo "kubectl apply -f ../manifests/acinamespaces-crd.yaml" >> installers/acins-kube-installer.sh && \
-	echo "kubectl apply -f ../manifests/acinamespaces-controller.yaml" >> installers/acins-kube-installer.sh
+	echo "kubectl apply -f ../manifests/acinamespaces-controller-k8s.yaml" >> installers/acins-kube-installer.sh
 	chmod +x installers/acins-kube-installer.sh
 
 # Make Kubernetes Uninstaller (TODO FIX ORDER)
 k8s-uninstaller: kustomize
 	$(KUSTOMIZE) build config/crd > manifests/acinamespaces-crd.yaml && \
-	$(KUSTOMIZE) build config/rbac-k8s > manifests/acinamespaces-rbac.yaml && \
-	$(KUSTOMIZE) build config/manager-k8s > manifests/acinamespaces-controller.yaml && \
+	$(KUSTOMIZE) build config/rbac-k8s > manifests/acinamespaces-rbac-k8s.yaml && \
+	$(KUSTOMIZE) build config/manager-k8s > manifests/acinamespaces-controller-k8s.yaml && \
 	echo "kubectl delete -f ../manifests/acinamespaces-crd.yaml" > installers/acins-kube-uninstaller.sh && \
-	echo "kubectl delete -f ../manifests/acinamespaces-controller.yaml" >> installers/acins-kube-uninstaller.sh && \
-	echo "kubectl delete -f ../manifests/acinamespaces-rbac.yaml" >> installers/acins-kube-uninstaller.sh
+	echo "kubectl delete -f ../manifests/acinamespaces-controller-k8s.yaml" >> installers/acins-kube-uninstaller.sh && \
+	echo "kubectl delete -f ../manifests/acinamespaces-rbac-k8s" >> installers/acins-kube-uninstaller.sh
 	chmod +x installers/acins-kube-uninstaller.sh
 
 # Make Openshift Installer and Manifests
 ocp-installer: kustomize
 	$(KUSTOMIZE) build config/crd > manifests/acinamespaces-crd.yaml && \
-	$(KUSTOMIZE) build config/rbac-k8s > manifests/acinamespaces-rbac.yaml && \
-	$(KUSTOMIZE) build config/manager-k8s > manifests/acinamespaces-controller.yaml && \
-	echo "ocp apply -f ../manifests/acinamespaces-rbac.yaml" > installers/acins-ocp-installer.sh && \
+	$(KUSTOMIZE) build config/rbac-openshift > manifests/acinamespaces-rbac-openshift.yaml && \
+	$(KUSTOMIZE) build config/manager-openshift > manifests/acinamespaces-controller-openshift.yaml && \
+	echo "ocp apply -f ../manifests/acinamespaces-rbac-openshift.yaml" > installers/acins-ocp-installer.sh && \
 	echo "ocp apply -f ../manifests/acinamespaces-crd.yaml" >> installers/acins-ocp-installer.sh && \
-	echo "ocp apply -f ../manifests/acinamespaces-controller.yaml" >> installers/acins-ocp-installer.sh
+	echo "ocp apply -f ../manifests/acinamespaces-controller-openshift.yaml" >> installers/acins-ocp-installer.sh
 	chmod +x installers/acins-ocp-installer.sh
 	
 # Make Openshift Uninstaller (TODO FIX ORDER)
 ocp-uninstaller: kustomize
 	$(KUSTOMIZE) build config/crd > manifests/acinamespaces-crd.yaml && \
-	$(KUSTOMIZE) build config/rbac-k8s > manifests/acinamespaces-rbac.yaml && \
-	$(KUSTOMIZE) build config/manager-k8s > manifests/acinamespaces-controller.yaml && \
+	$(KUSTOMIZE) build config/rbac-openshift > manifests/acinamespaces-rbac-openshift.yaml && \
+	$(KUSTOMIZE) build config/manager-openshift > manifests/acinamespaces-controller-openshift.yaml && \
 	echo "ocp delete -f ../manifests/acinamespaces-crd.yaml" > installers/acins-ocp-uninstaller.sh && \
-	echo "ocp delete -f ../manifests/acinamespaces-controller.yaml" >> installers/acins-ocp-uninstaller.sh && \
-	echo "ocp delete -f ../manifests/acinamespaces-rbac.yaml" >> installers/acins-ocp-uninstaller.sh 
+	echo "ocp delete -f ../manifests/acinamespaces-controller-openshift.yaml" >> installers/acins-ocp-uninstaller.sh && \
+	echo "ocp delete -f ../manifests/acinamespaces-rbac-openshift.yaml" >> installers/acins-ocp-uninstaller.sh 
 	chmod +x installers/acins-ocp-uninstaller.sh
 
 # Dummy test

@@ -15,6 +15,7 @@ spec:
       labels:
         name: acins-operator-rmlab
     spec:
+      serviceAccountName: aci-operator-serviceaccount
       terminationGracePeriodSeconds: 10
       containers:
         - name: manager
