@@ -54,7 +54,7 @@ Compared to previous versions, from version 1 the RMLAB ACI Kubernetes Operator 
 
 * Be compliant with the v1 Operator SDK framework data structure and features
 * Implement multiple ACI CNI use cases
-* Allow the user to detach the operator in case manual (traditional) control is required at some point in time (e.g. you realize the infrastructure is getting to complex to be managed by the operator)
+* Allow the user to detach the operator in case manual (traditional) control is required at some point in time (e.g. you realize the infrastructure is getting too complex to be managed by the operator)
 
 For further information on SDK framework v1, please click [here](https://www.openshift.com/blog/operator-sdk-reaches-v1.0)
 
