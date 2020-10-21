@@ -1,6 +1,6 @@
 # Cisco RMLAB ACI Operator
 ##### An Ansible operator that extends Kubernetes APIs in order to implement Cisco ACI Automation<br>
-Disclaimer: This is NOT an official Cisco application and comes with absolute NO WARRANTY! <br>Please check the [LICENSE](https://github.com/rtortori/rmlab-aci-operator/blob/main/LICENSE-CISCO.md) for further information. <br>
+Disclaimer: This is NOT an official Cisco application and comes with absolute NO WARRANTY! <br>Please check the [LICENSE](https://github.com/rtortori/rmlab-aci-operator/blob/main/LICENSE-CISCO.md ) for further information. <br>
 
 <u>Helm chart repository and instructions [here](https://rtortori.github.io/rmlab-aci-operator-helm/).</u>
 
