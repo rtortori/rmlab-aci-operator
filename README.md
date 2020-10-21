@@ -2,6 +2,8 @@
 ##### An Ansible operator that extends Kubernetes APIs in order to implement Cisco ACI Automation<br>
 Disclaimer: This is NOT an official Cisco application and comes with absolute NO WARRANTY! <br>Please check the [LICENSE](https://github.com/rtortori/rmlab-aci-operator/blob/main/LICENSE-CISCO.md) for further information. <br>
 
+<u>Helm chart repository and instructions [here](https://rtortori.github.io/rmlab-aci-operator-helm/).</u>
+
 ### Supported platforms
 * Kubernetes v1.16+ (Tested with ACI 4.1, 4.2 and 5.0)
 * Openshift Container Platform v4.3+ (Should work but never tested)
@@ -28,28 +30,72 @@ If you need to run the RMLAB ACI Operator on Kubernetes <1.16 or Openshift 3.x, 
 - Kubectl now shows consumer/provider contracts for the EPG your namespace is attached to. These values are updated by default every 10 seconds
 - Option to detach the operator in case at some point in time you want to go manual
 - Support for non default AP and Bridge Domain
+- Helm installer
 
-### Installation
+## Installation
 
-Kubernetes
+##### Kubernetes
 
-``` installers/acins-kube-installer.sh ```
+``` 
+helm repo add rmlab-aci-operator https://rtortori.github.io/rmlab-aci-operator-helm/ 
+```
 
-Openshift
+``` 
+helm install aci-op rmlab-aci-operator/latest 
+```
 
-``` installers/acins-ocp-installer.sh ```
+Or you can install manually by cloning this repo and run:
 
-### Uninstall the operator
+``` 
+installers/acins-kube-installer.sh 
+```
 
-Kubernetes
+##### Openshift
 
-``` installers/acins-kube-uninstaller.sh ```
+``` 
+helm repo add rmlab-aci-operator https://rtortori.github.io/rmlab-aci-operator-helm/ 
+```
 
-Openshift
+``` 
+helm install aci-op rmlab-aci-operator/latest --set global.containerPlatform=openshift 
+```
 
-``` installers/acins-ocp-uninstaller.sh ```
+Or you can install manually by cloning this repo and run:
 
-### Features and Operational Model
+``` 
+installers/acins-ocp-installer.sh 
+```
+
+<br>
+## Uninstall the operator
+
+##### Kubernetes
+
+```
+helm unistall aci-op
+```
+
+Or you can uninstall manually by cloning this repo and run:
+
+``` 
+installers/acins-kube-uninstaller.sh 
+```
+
+
+
+##### Openshift
+
+```
+helm unistall aci-op
+```
+
+Or you can uninstall manually by cloning this repo and run:
+
+``` 
+installers/acins-ocp-uninstaller.sh 
+```
+
+## Features and Operational Model
 Compared to previous versions, from version 1 the RMLAB ACI Kubernetes Operator has been reworked to address three challenges:
 
 * Be compliant with the v1 Operator SDK framework data structure and features
@@ -68,7 +114,7 @@ While previous versions of this operator only supported a single use case (creat
 When using strategy no.1. ACI Admins are required to pre-provision EPGs with the right contract as per corporate policies. <br>
 Once the EPGs have been defined, Kubernetes admins can reference to their names as EPG Contract Masters (created EPGs will inherit contracts from those EPGs).<br>
 
-The following table describes the operator use cases.<br>
+The following table describes the operator use cases. Each use case is basically a combination of the specs you can configure in the CR.<br>
  `epgcontractmaster` and `op_managed` are <i>specs</i> of the Custom Resource you create (CR).
 
 | Use Case #        | Use Case Description           | Existing EPG  | epgcontractmaster | op_managed | Notes|
@@ -138,7 +184,7 @@ This will:
 * Configure `kube-default` EPG as the contract master for the `frontend` EPG
 * Creates or updates a Kubernetes namespace called `frontend` with the correct opflex annotation
 
-### Deployment Example
+## Deployment Example
 
 ```
 cat <<EOF | kubectl apply -f -
@@ -216,7 +262,7 @@ You can switch mode (Operator managed to unmanaged and viceversa) patching a spe
 
 Once you delete the CR, if you wish to retake control, you need to recreate the CR. 
 
-### Customization
+## Customization
 
 The operator respects the data structure of the Operator Framework SDK v1.<br>
 Please have a look [here](https://sdk.operatorframework.io/docs/building-operators/ansible/quickstart/) for the Ansible operator quick start. <br><br>
@@ -235,7 +281,7 @@ Modify the `requirements.yaml` file to add more collections to the Ansible contr
 The `watches.yaml` file specifies the Kubernetes APIs the controller needs to watch, the playbook it should run, the finalizer that should use when `AciNamespaces` are terminated.
 You can customize the reconcilePeriod if you feel 10 seconds is too aggressive.
 
-### Build
+## Build
 
 Kubernetes (modify the IMG variable with your controller image) 
 
