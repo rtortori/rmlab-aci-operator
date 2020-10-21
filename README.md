@@ -67,6 +67,7 @@ installers/acins-ocp-installer.sh
 ```
 
 <br>
+
 ## Uninstall the operator
 
 ##### Kubernetes
